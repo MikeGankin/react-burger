@@ -1,0 +1,10 @@
+.constructorCard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.dragIcon {
+  display: flex;
+  flex-shrink: 0;
+}
