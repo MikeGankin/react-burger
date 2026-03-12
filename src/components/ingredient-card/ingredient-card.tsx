@@ -1,6 +1,9 @@
 import { Counter, CurrencyIcon } from '@krgaa/react-developer-burger-ui-components';
 import { clsx } from 'clsx';
 import { useCallback } from 'react';
+import { useDrag } from 'react-dnd';
+
+import { DND_INGREDIENT_TYPE } from '@utils/constants';
 
 import type { TIngredient } from '@utils/types';
 
@@ -15,13 +18,25 @@ export const IngredientCard = ({
   ingredient,
   onClick,
 }: TIngredientCardProps): React.JSX.Element => {
+  const [{ isDragging }, dragRef] = useDrag(
+    () => ({
+      type: DND_INGREDIENT_TYPE,
+      item: ingredient,
+      collect: (monitor): { isDragging: boolean } => ({
+        isDragging: monitor.isDragging(),
+      }),
+    }),
+    [ingredient]
+  );
+
   const handleIngredientClick = useCallback((): void => {
     onClick?.(ingredient);
   }, [ingredient, onClick]);
 
   return (
     <article
-      className={styles.ingredient_card}
+      ref={dragRef}
+      className={clsx(styles.ingredient_card, isDragging && styles.dragging)}
       onClick={handleIngredientClick}
       role="button"
       tabIndex={0}

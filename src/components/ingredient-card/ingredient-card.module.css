@@ -11,6 +11,10 @@
     cursor: pointer;
 }
 
+.dragging {
+    opacity: 0.5;
+}
+
 .info {
     display: flex;
     align-items: center;

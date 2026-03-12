@@ -3,10 +3,16 @@ import {
   ConstructorElement,
   CurrencyIcon,
 } from '@krgaa/react-developer-burger-ui-components';
+import { clsx } from 'clsx';
 import { useCallback, useMemo } from 'react';
+import { useDrop } from 'react-dnd';
 
 import { ConstructorCard } from '@components/constructor-card/constructor-card';
-import { useAppSelector } from '@services/hooks';
+import { useAppDispatch, useAppSelector } from '@services/hooks';
+import { addIngredient } from '@services/slices/constructor-slice';
+import { DND_INGREDIENT_TYPE } from '@utils/constants';
+
+import type { TIngredient } from '@utils/types';
 
 import styles from './burger-constructor.module.css';
 
@@ -17,7 +23,20 @@ type TBurgerConstructorProps = {
 export const BurgerConstructor = ({
   onOrderClick,
 }: TBurgerConstructorProps): React.JSX.Element => {
+  const dispatch = useAppDispatch();
   const { bun, ingredients } = useAppSelector((state) => state.burgerConstructor);
+  const [{ isOver }, dropRef] = useDrop(
+    () => ({
+      accept: DND_INGREDIENT_TYPE,
+      drop: (ingredient: TIngredient): void => {
+        dispatch(addIngredient(ingredient));
+      },
+      collect: (monitor): { isOver: boolean } => ({
+        isOver: monitor.isOver(),
+      }),
+    }),
+    [dispatch]
+  );
 
   const totalPrice = useMemo<number>(() => {
     const ingredientsTotal = ingredients.reduce(
@@ -34,7 +53,10 @@ export const BurgerConstructor = ({
   }, [onOrderClick]);
 
   return (
-    <section className={styles.burger_constructor}>
+    <section
+      ref={dropRef}
+      className={clsx(styles.burger_constructor, isOver && styles.drop_active)}
+    >
       {bun ? (
         <div className={`${styles.constructor_element} ml-8`}>
           <ConstructorElement
