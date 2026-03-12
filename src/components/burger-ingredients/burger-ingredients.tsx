@@ -1,6 +1,6 @@
 import { Tab } from '@krgaa/react-developer-burger-ui-components';
 import { clsx } from 'clsx';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState, type RefObject } from 'react';
 
 import { IngredientCard } from '@components/ingredient-card/ingredient-card';
 
@@ -20,6 +20,7 @@ export const BurgerIngredients = ({
   onIngredientClick,
 }: TBurgerIngredientsProps): React.JSX.Element => {
   const [currentTab, setCurrentTab] = useState<TTab>('bun');
+  const containerRef = useRef<HTMLDivElement>(null);
   const bunsRef = useRef<HTMLHeadingElement>(null);
   const mainsRef = useRef<HTMLHeadingElement>(null);
   const saucesRef = useRef<HTMLHeadingElement>(null);
@@ -36,6 +37,41 @@ export const BurgerIngredients = ({
     () => ingredients.filter((ingredient) => ingredient.type === 'sauce'),
     [ingredients]
   );
+
+  const updateCurrentTab = useCallback((): void => {
+    if (!containerRef.current) {
+      return;
+    }
+
+    const containerTop = containerRef.current.getBoundingClientRect().top;
+    const sections: { ref: RefObject<HTMLHeadingElement | null>; tab: TTab }[] = [
+      { ref: bunsRef, tab: 'bun' },
+      { ref: mainsRef, tab: 'main' },
+      { ref: saucesRef, tab: 'sauce' },
+    ];
+
+    const closestSection = sections.reduce(
+      (closest, section) => {
+        const sectionTop = section.ref.current?.getBoundingClientRect().top ?? 0;
+        const distance = Math.abs(sectionTop - containerTop);
+
+        if (distance < closest.distance) {
+          return {
+            distance,
+            tab: section.tab,
+          };
+        }
+
+        return closest;
+      },
+      {
+        distance: Number.POSITIVE_INFINITY,
+        tab: 'bun' as TTab,
+      }
+    );
+
+    setCurrentTab(closestSection.tab);
+  }, []);
 
   const handleTabClick = useCallback((tab: string): void => {
     const selectedTab = tab as TTab;
@@ -69,7 +105,11 @@ export const BurgerIngredients = ({
           </Tab>
         </ul>
       </nav>
-      <div className={clsx(styles.container, 'custom-scroll')}>
+      <div
+        ref={containerRef}
+        className={clsx(styles.container, 'custom-scroll')}
+        onScroll={updateCurrentTab}
+      >
         <h2 ref={bunsRef} className="text text_type_main-medium mb-6">
           Булки
         </h2>

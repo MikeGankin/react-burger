@@ -6,44 +6,36 @@ import {
 import { useCallback, useMemo } from 'react';
 
 import { ConstructorCard } from '@components/constructor-card/constructor-card';
-
-import type { TIngredient } from '@utils/types';
+import { useAppSelector } from '@services/hooks';
 
 import styles from './burger-constructor.module.css';
 
 type TBurgerConstructorProps = {
-  ingredients: TIngredient[];
   onOrderClick?: () => void;
 };
 
 export const BurgerConstructor = ({
-  ingredients,
   onOrderClick,
 }: TBurgerConstructorProps): React.JSX.Element => {
-  const bun = useMemo<TIngredient | null>(
-    () => ingredients.find((ingredient) => ingredient.type === 'bun') ?? null,
-    [ingredients]
-  );
-  const constructorItems = useMemo<TIngredient[]>(
-    () => ingredients.filter((ingredient) => ingredient.type === 'main'),
-    [ingredients]
-  );
+  const { bun, ingredients } = useAppSelector((state) => state.burgerConstructor);
+
   const totalPrice = useMemo<number>(() => {
-    const ingredientsTotal = constructorItems.reduce(
+    const ingredientsTotal = ingredients.reduce(
       (sum, ingredient) => sum + ingredient.price,
       0
     );
     const bunsTotal = bun ? bun.price * 2 : 0;
 
     return ingredientsTotal + bunsTotal;
-  }, [bun, constructorItems]);
+  }, [bun, ingredients]);
+
   const handleOrderButtonClick = useCallback((): void => {
     onOrderClick?.();
   }, [onOrderClick]);
 
   return (
     <section className={styles.burger_constructor}>
-      {bun && (
+      {bun ? (
         <div className={`${styles.constructor_element} ml-8`}>
           <ConstructorElement
             type="top"
@@ -53,15 +45,31 @@ export const BurgerConstructor = ({
             thumbnail={bun.image}
           />
         </div>
+      ) : (
+        <div className={`${styles.empty_element} ml-8`}>
+          <p className="text text_type_main-default text_color_inactive">
+            Выберите булку
+          </p>
+        </div>
       )}
       <ul className={`${styles.constructor_list} custom-scroll`}>
-        {constructorItems.map((ingredient) => (
-          <li key={ingredient._id} className={styles.constructor_item}>
-            <ConstructorCard ingredient={ingredient} />
+        {ingredients.length > 0 ? (
+          ingredients.map((ingredient) => (
+            <li key={ingredient.uniqueId} className={styles.constructor_item}>
+              <ConstructorCard ingredient={ingredient} />
+            </li>
+          ))
+        ) : (
+          <li className={styles.constructor_item}>
+            <div className={styles.empty_list}>
+              <p className="text text_type_main-default text_color_inactive">
+                Перетащите сюда ингредиенты
+              </p>
+            </div>
           </li>
-        ))}
+        )}
       </ul>
-      {bun && (
+      {bun ? (
         <div className={styles.constructor_element}>
           <ConstructorElement
             type="bottom"
@@ -70,6 +78,12 @@ export const BurgerConstructor = ({
             price={bun.price}
             thumbnail={bun.image}
           />
+        </div>
+      ) : (
+        <div className={styles.empty_element}>
+          <p className="text text_type_main-default text_color_inactive">
+            Выберите булку
+          </p>
         </div>
       )}
       <div className={`${styles.total} mt-10`}>

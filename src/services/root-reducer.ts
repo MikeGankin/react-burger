@@ -5,7 +5,7 @@ import { constructorReducer } from '@services/slices/constructor-slice';
 import { ingredientDetailsReducer } from '@services/slices/ingredient-details-slice';
 
 export const rootReducer = combineReducers({
-  constructor: constructorReducer,
+  burgerConstructor: constructorReducer,
   ingredientDetails: ingredientDetailsReducer,
   [burgerApi.reducerPath]: burgerApi.reducer,
 });
