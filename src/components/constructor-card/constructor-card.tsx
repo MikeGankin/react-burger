@@ -2,6 +2,7 @@ import {
   ConstructorElement,
   DragIcon,
 } from '@krgaa/react-developer-burger-ui-components';
+import { useCallback } from 'react';
 
 import type { TIngredient } from '@utils/types';
 
@@ -9,14 +10,16 @@ import styles from './constructor-card.module.css';
 
 type TBurgerConstructorCardProps = {
   ingredient: TIngredient;
+  onRemove: () => void;
 };
 
 export const ConstructorCard = ({
   ingredient,
+  onRemove,
 }: TBurgerConstructorCardProps): React.JSX.Element => {
-  const handleClose = (): void => {
-    /* remove logic will be added in next sprint */
-  };
+  const handleClose = useCallback((): void => {
+    onRemove();
+  }, [onRemove]);
 
   return (
     <article className={styles.constructorCard}>

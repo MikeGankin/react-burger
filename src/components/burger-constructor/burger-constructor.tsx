@@ -9,7 +9,7 @@ import { useDrop } from 'react-dnd';
 
 import { ConstructorCard } from '@components/constructor-card/constructor-card';
 import { useAppDispatch, useAppSelector } from '@services/hooks';
-import { addIngredient } from '@services/slices/constructor-slice';
+import { addIngredient, removeIngredient } from '@services/slices/constructor-slice';
 import { DND_INGREDIENT_TYPE } from '@utils/constants';
 
 import type { TIngredient } from '@utils/types';
@@ -52,6 +52,13 @@ export const BurgerConstructor = ({
     onOrderClick?.();
   }, [onOrderClick]);
 
+  const handleRemoveIngredient = useCallback(
+    (uniqueId: string): void => {
+      dispatch(removeIngredient(uniqueId));
+    },
+    [dispatch]
+  );
+
   return (
     <section
       ref={dropRef}
@@ -78,7 +85,12 @@ export const BurgerConstructor = ({
         {ingredients.length > 0 ? (
           ingredients.map((ingredient) => (
             <li key={ingredient.uniqueId} className={styles.constructor_item}>
-              <ConstructorCard ingredient={ingredient} />
+              <ConstructorCard
+                ingredient={ingredient}
+                onRemove={() => {
+                  handleRemoveIngredient(ingredient.uniqueId);
+                }}
+              />
             </li>
           ))
         ) : (
