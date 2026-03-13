@@ -3,6 +3,8 @@ import { clsx } from 'clsx';
 import { useCallback } from 'react';
 import { useDrag } from 'react-dnd';
 
+import { useAppSelector } from '@services/hooks';
+import { selectIngredientsCounters } from '@services/selectors/constructor-selectors';
 import { DND_INGREDIENT_TYPE } from '@utils/constants';
 
 import type { TIngredient } from '@utils/types';
@@ -18,6 +20,8 @@ export const IngredientCard = ({
   ingredient,
   onClick,
 }: TIngredientCardProps): React.JSX.Element => {
+  const counters = useAppSelector(selectIngredientsCounters);
+  const ingredientCount = counters[ingredient._id] ?? 0;
   const [{ isDragging }, dragRef] = useDrag(
     () => ({
       type: DND_INGREDIENT_TYPE,
@@ -46,7 +50,9 @@ export const IngredientCard = ({
         }
       }}
     >
-      <Counter extraClass="" count={1} size="default" />
+      {ingredientCount > 0 && (
+        <Counter extraClass="" count={ingredientCount} size="default" />
+      )}
       <div className="visual">
         <img src={ingredient.image_large} alt={ingredient.name} />
       </div>

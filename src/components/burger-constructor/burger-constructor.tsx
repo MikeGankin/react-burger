@@ -4,11 +4,16 @@ import {
   CurrencyIcon,
 } from '@krgaa/react-developer-burger-ui-components';
 import { clsx } from 'clsx';
-import { useCallback, useMemo } from 'react';
+import { useCallback } from 'react';
 import { useDrop } from 'react-dnd';
 
 import { ConstructorCard } from '@components/constructor-card/constructor-card';
 import { useAppDispatch, useAppSelector } from '@services/hooks';
+import {
+  selectConstructorBun,
+  selectConstructorIngredients,
+  selectTotalPrice,
+} from '@services/selectors/constructor-selectors';
 import {
   addIngredient,
   moveIngredient,
@@ -28,7 +33,9 @@ export const BurgerConstructor = ({
   onOrderClick,
 }: TBurgerConstructorProps): React.JSX.Element => {
   const dispatch = useAppDispatch();
-  const { bun, ingredients } = useAppSelector((state) => state.burgerConstructor);
+  const bun = useAppSelector(selectConstructorBun);
+  const ingredients = useAppSelector(selectConstructorIngredients);
+  const totalPrice = useAppSelector(selectTotalPrice);
   const [{ isOver }, dropRef] = useDrop(
     () => ({
       accept: DND_INGREDIENT_TYPE,
@@ -41,16 +48,6 @@ export const BurgerConstructor = ({
     }),
     [dispatch]
   );
-
-  const totalPrice = useMemo<number>(() => {
-    const ingredientsTotal = ingredients.reduce(
-      (sum, ingredient) => sum + ingredient.price,
-      0
-    );
-    const bunsTotal = bun ? bun.price * 2 : 0;
-
-    return ingredientsTotal + bunsTotal;
-  }, [bun, ingredients]);
 
   const handleOrderButtonClick = useCallback((): void => {
     onOrderClick?.();
