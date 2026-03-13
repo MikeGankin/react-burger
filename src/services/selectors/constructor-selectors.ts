@@ -52,3 +52,14 @@ export const selectTotalPrice = createSelector(
     return ingredientsTotal + bunsTotal;
   }
 );
+
+export const selectOrderIngredientIds = createSelector(
+  [selectConstructorBun, selectConstructorIngredients],
+  (bun, ingredients) => {
+    if (!bun) {
+      return [];
+    }
+
+    return [bun._id, ...ingredients.map((ingredient) => ingredient._id), bun._id];
+  }
+);

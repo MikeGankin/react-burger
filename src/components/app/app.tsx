@@ -6,8 +6,9 @@ import { BurgerIngredients } from '@components/burger-ingredients/burger-ingredi
 import { IngredientDetails } from '@components/ingredient-details/ingredient-details';
 import { Modal } from '@components/modal/modal';
 import { OrderDetails } from '@components/order-details/order-details';
-import { useGetIngredientsQuery } from '@services/burger-api';
+import { useCreateOrderMutation, useGetIngredientsQuery } from '@services/burger-api';
 import { useAppDispatch, useAppSelector } from '@services/hooks';
+import { selectOrderIngredientIds } from '@services/selectors/constructor-selectors';
 import {
   clearSelectedIngredient,
   setSelectedIngredient,
@@ -22,13 +23,19 @@ export const App = (): React.JSX.Element => {
   const { ingredient: selectedIngredient } = useAppSelector(
     (state) => state.ingredientDetails
   );
+  const orderIngredientIds = useAppSelector(selectOrderIngredientIds);
   const { data: ingredients = [], error, isLoading } = useGetIngredientsQuery();
+  const [
+    createOrder,
+    { data: orderData, error: orderError, isLoading: isOrderLoading, reset },
+  ] = useCreateOrderMutation();
   const [isOrderModalOpen, setIsOrderModalOpen] = useState<boolean>(false);
 
   const handleCloseModal = useCallback((): void => {
     dispatch(clearSelectedIngredient());
     setIsOrderModalOpen(false);
-  }, [dispatch]);
+    reset();
+  }, [dispatch, reset]);
 
   const handleIngredientClick = useCallback(
     (ingredient: TIngredient): void => {
@@ -38,11 +45,20 @@ export const App = (): React.JSX.Element => {
   );
 
   const handleOrderClick = useCallback((): void => {
+    if (orderIngredientIds.length === 0 || isOrderLoading) {
+      return;
+    }
+
+    reset();
     setIsOrderModalOpen(true);
-  }, []);
+    void createOrder({
+      ingredients: orderIngredientIds,
+    });
+  }, [createOrder, isOrderLoading, orderIngredientIds, reset]);
 
   const errorMessage =
     error && 'status' in error ? 'Не удалось загрузить ингредиенты' : null;
+  const orderErrorMessage = orderError ? 'Попробуйте оформить заказ ещё раз' : null;
 
   return (
     <div className={styles.app}>
@@ -72,7 +88,11 @@ export const App = (): React.JSX.Element => {
       )}
       {isOrderModalOpen && (
         <Modal title="Детали заказа" onClose={handleCloseModal}>
-          <OrderDetails />
+          <OrderDetails
+            orderNumber={orderData?.order.number}
+            isLoading={isOrderLoading}
+            error={orderErrorMessage}
+          />
         </Modal>
       )}
     </div>
