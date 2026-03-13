@@ -9,7 +9,11 @@ import { useDrop } from 'react-dnd';
 
 import { ConstructorCard } from '@components/constructor-card/constructor-card';
 import { useAppDispatch, useAppSelector } from '@services/hooks';
-import { addIngredient, removeIngredient } from '@services/slices/constructor-slice';
+import {
+  addIngredient,
+  moveIngredient,
+  removeIngredient,
+} from '@services/slices/constructor-slice';
 import { DND_INGREDIENT_TYPE } from '@utils/constants';
 
 import type { TIngredient } from '@utils/types';
@@ -58,6 +62,12 @@ export const BurgerConstructor = ({
     },
     [dispatch]
   );
+  const handleMoveIngredient = useCallback(
+    (dragIndex: number, hoverIndex: number): void => {
+      dispatch(moveIngredient({ dragIndex, hoverIndex }));
+    },
+    [dispatch]
+  );
 
   return (
     <section
@@ -83,10 +93,12 @@ export const BurgerConstructor = ({
       )}
       <ul className={`${styles.constructor_list} custom-scroll`}>
         {ingredients.length > 0 ? (
-          ingredients.map((ingredient) => (
+          ingredients.map((ingredient, index) => (
             <li key={ingredient.uniqueId} className={styles.constructor_item}>
               <ConstructorCard
                 ingredient={ingredient}
+                index={index}
+                onMove={handleMoveIngredient}
                 onRemove={() => {
                   handleRemoveIngredient(ingredient.uniqueId);
                 }}

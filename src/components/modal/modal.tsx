@@ -1,5 +1,5 @@
 import { CloseIcon } from '@krgaa/react-developer-burger-ui-components';
-import { useEffect, type ReactNode } from 'react';
+import { type ReactNode, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
 import { ModalOverlay } from '@components/modal-overlay/modal-overlay';
@@ -65,5 +65,3 @@ export const Modal = ({
     modalRoot
   );
 };
-
-export default Modal;

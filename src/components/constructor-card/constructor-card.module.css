@@ -4,6 +4,15 @@
   gap: 14px;
 }
 
+.dragging {
+  opacity: 0.5;
+}
+
+.hovered {
+  outline: 1px dashed rgb(76 76 255 / 60%);
+  outline-offset: 8px;
+}
+
 .dragIcon {
   display: flex;
   flex-shrink: 0;
