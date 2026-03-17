@@ -3,6 +3,7 @@ import { clsx } from 'clsx';
 import { useCallback, useMemo, useRef, useState, type RefObject } from 'react';
 
 import { IngredientCard } from '@components/ingredient-card/ingredient-card';
+import { useGetIngredientsQuery } from '@services/burger-api';
 
 import type { TIngredient } from '@utils/types';
 
@@ -11,14 +12,13 @@ import styles from './burger-ingredients.module.css';
 type TTab = 'bun' | 'main' | 'sauce';
 
 type TBurgerIngredientsProps = {
-  ingredients: TIngredient[];
   onIngredientClick?: (ingredient: TIngredient) => void;
 };
 
 export const BurgerIngredients = ({
-  ingredients,
   onIngredientClick,
 }: TBurgerIngredientsProps): React.JSX.Element => {
+  const { data: ingredients = [], error, isLoading } = useGetIngredientsQuery();
   const [currentTab, setCurrentTab] = useState<TTab>('bun');
   const containerRef = useRef<HTMLDivElement>(null);
   const bunsRef = useRef<HTMLHeadingElement>(null);
@@ -89,6 +89,17 @@ export const BurgerIngredients = ({
 
     saucesRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
+
+  const errorMessage =
+    error && 'status' in error ? 'Не удалось загрузить ингредиенты' : null;
+
+  if (isLoading) {
+    return <p className="text text_type_main-default">Загрузка...</p>;
+  }
+
+  if (errorMessage) {
+    return <p className="text text_type_main-default">Ошибка: {errorMessage}</p>;
+  }
 
   return (
     <section className={styles.burger_ingredients}>

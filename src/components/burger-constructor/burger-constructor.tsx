@@ -50,8 +50,12 @@ export const BurgerConstructor = ({
   );
 
   const handleOrderButtonClick = useCallback((): void => {
+    if (!bun) {
+      return;
+    }
+
     onOrderClick?.();
-  }, [onOrderClick]);
+  }, [bun, onOrderClick]);
 
   const handleRemoveIngredient = useCallback(
     (uniqueId: string): void => {
@@ -137,6 +141,7 @@ export const BurgerConstructor = ({
           type="primary"
           size="large"
           extraClass="ml-10"
+          disabled={!bun}
           onClick={handleOrderButtonClick}
         >
           Оформить заказ

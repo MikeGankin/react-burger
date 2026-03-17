@@ -6,9 +6,10 @@ import { BurgerIngredients } from '@components/burger-ingredients/burger-ingredi
 import { IngredientDetails } from '@components/ingredient-details/ingredient-details';
 import { Modal } from '@components/modal/modal';
 import { OrderDetails } from '@components/order-details/order-details';
-import { useCreateOrderMutation, useGetIngredientsQuery } from '@services/burger-api';
+import { useCreateOrderMutation } from '@services/burger-api';
 import { useAppDispatch, useAppSelector } from '@services/hooks';
 import { selectOrderIngredientIds } from '@services/selectors/constructor-selectors';
+import { clearConstructor } from '@services/slices/constructor-slice';
 import {
   clearSelectedIngredient,
   setSelectedIngredient,
@@ -24,7 +25,6 @@ export const App = (): React.JSX.Element => {
     (state) => state.ingredientDetails
   );
   const orderIngredientIds = useAppSelector(selectOrderIngredientIds);
-  const { data: ingredients = [], error, isLoading } = useGetIngredientsQuery();
   const [
     createOrder,
     { data: orderData, error: orderError, isLoading: isOrderLoading, reset },
@@ -33,9 +33,14 @@ export const App = (): React.JSX.Element => {
 
   const handleCloseModal = useCallback((): void => {
     dispatch(clearSelectedIngredient());
+
+    if (isOrderModalOpen && orderData?.success) {
+      dispatch(clearConstructor());
+    }
+
     setIsOrderModalOpen(false);
     reset();
-  }, [dispatch, reset]);
+  }, [dispatch, isOrderModalOpen, orderData?.success, reset]);
 
   const handleIngredientClick = useCallback(
     (ingredient: TIngredient): void => {
@@ -56,8 +61,6 @@ export const App = (): React.JSX.Element => {
     });
   }, [createOrder, isOrderLoading, orderIngredientIds, reset]);
 
-  const errorMessage =
-    error && 'status' in error ? 'Не удалось загрузить ингредиенты' : null;
   const orderErrorMessage = orderError ? 'Попробуйте оформить заказ ещё раз' : null;
 
   return (
@@ -67,19 +70,10 @@ export const App = (): React.JSX.Element => {
         Соберите бургер
       </h1>
       <main className={`${styles.main} pl-5 pr-5`}>
-        {isLoading && <p className="text text_type_main-default">Загрузка...</p>}
-        {errorMessage && (
-          <p className="text text_type_main-default">Ошибка: {errorMessage}</p>
-        )}
-        {!isLoading && !errorMessage && (
-          <>
-            <BurgerIngredients
-              ingredients={ingredients}
-              onIngredientClick={handleIngredientClick}
-            />
-            <BurgerConstructor onOrderClick={handleOrderClick} />
-          </>
-        )}
+        <>
+          <BurgerIngredients onIngredientClick={handleIngredientClick} />
+          <BurgerConstructor onOrderClick={handleOrderClick} />
+        </>
       </main>
       {selectedIngredient && (
         <Modal title="Детали ингредиента" onClose={handleCloseModal}>
