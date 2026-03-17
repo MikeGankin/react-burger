@@ -1,0 +1,27 @@
+.ingredient_card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    padding: 16px;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+}
+
+.dragging {
+    opacity: 0.5;
+}
+
+.info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.ingredient_name {
+    text-align: center;
+    text-wrap: balance;
+}

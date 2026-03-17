@@ -1,15 +1,35 @@
 .burger_ingredients {
-  display: flex;
-  flex-direction: column;
-  max-width: 600px;
-  color: var(--text-primary-color);
-  font-family: 'Jet Brains Mono', serif;
+    display: flex;
+    flex-direction: column;
+    max-width: 600px;
+    font-family: 'Jet Brains Mono', serif;
 }
 
 .menu {
-  display: flex;
-  margin: 0;
-  padding: 0;
-  text-align: center;
-  list-style-type: none;
+    display: flex;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    list-style-type: none;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    padding: 40px 16px 0 0;
+    overflow-y: scroll;
+    scroll-behavior: smooth;
+}
+
+.ingredients_list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    margin: 0 0 40px;
+    padding: 0 0 0 16px;
+    list-style: none;
+}
+
+.ingredients_item {
+    width: calc(50% - 12px);
 }
